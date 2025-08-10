@@ -9,7 +9,10 @@ import {
 import React, { useState } from 'react';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { SafeAreaView } from 'react-native-safe-area-context';
-const manitLogo = require('../assets/manit_logo.png');
+import { storage, StorageKeys } from '../services/storage.service';
+import { userData } from '../assets/data/data';
+const manitLogo = require('../assets/img/manit_logo.png');
+
 const Login = () => {
   const { theme } = useUnistyles();
   const [scholarId, setScholarId] = useState('');
@@ -18,6 +21,12 @@ const Login = () => {
   const handleLogin = async () => {
     // In a real app, you would add authentication logic here
     console.log('sign in with ', { scholarId, password });
+    storage.set(
+      StorageKeys.USER,
+      JSON.stringify(userData.userInfo.studentInfo),
+    );
+    storage.set(StorageKeys.TOKEN,userData.token);
+    console.log(storage.getString(StorageKeys.TOKEN));
   };
 
   return (
@@ -38,6 +47,7 @@ const Login = () => {
             value={scholarId}
             onChangeText={setScholarId}
             autoCapitalize="none"
+            keyboardType="decimal-pad"
           />
         </View>
 
@@ -49,7 +59,7 @@ const Login = () => {
             placeholderTextColor={theme.colors.placeholder}
             value={password}
             onChangeText={setPassword}
-            secureTextEntry
+            secureTextEntry={true}
           />
         </View>
 
@@ -92,8 +102,6 @@ const styles = StyleSheet.create((theme, rt) => ({
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 5,
-
-    
   },
   // App title
   title: {
@@ -161,6 +169,6 @@ const styles = StyleSheet.create((theme, rt) => ({
     height: 100,
     alignSelf: 'center',
     marginBottom: theme.spacing.lg,
-    borderRadius: 12, // Optional: if you want rounded corners on the logo
+    borderRadius: 12,
   },
 }));

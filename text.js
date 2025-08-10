@@ -1,26 +1,30 @@
-// For Node.js versions prior to v18, or if using CommonJS modules, 
-// you might need to install and import 'node-fetch':
-// npm install node-fetch@2 // For CommonJS
-// const fetch = require('node-fetch'); 
 
-async function fetchDataFromUrl(url) {
+
+const getData = async () => {
   try {
-    const response = await fetch(url);
-
-    // Check if the response was successful (status code 200-299)
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    // Parse the response body as JSON
-    const data = await response.json(); 
-    console.log('Fetched data:', data);
-
-  } catch (error) {
-    console.error('Error fetching data:', error);
+    const res = await fetch('https://erpapi.manit.ac.in/api/login', {
+      headers: {
+        accept: 'application/json, text/plain, */*',
+        'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
+        'content-type': 'application/json',
+        'sec-ch-ua':
+          '"Not)A;Brand";v="8", "Chromium";v="138", "Google Chrome";v="138"',
+        'sec-ch-ua-mobile': '?0',
+        'sec-ch-ua-platform': '"Windows"',
+        'sec-fetch-dest': 'empty',
+        'sec-fetch-mode': 'cors',
+        'sec-fetch-site': 'same-site',
+        Referer: 'https://students.manit.ac.in/',
+      },
+      body: '{"username":"24204031211","password":"Deepu2002$"}',
+      method: 'POST',
+    });
+    const data = await res.json();
+    console.log(data);
+  } catch (e) {
+    console.log(e);
   }
-}
+};
 
-// Example usage with a public API URL
-const exampleUrl = 'https://jsonplaceholder.typicode.com/posts/1'; 
-fetchDataFromUrl(exampleUrl);
+
+getData();
