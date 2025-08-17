@@ -37,8 +37,8 @@ const typography = {
     md: 16, // Medium: for body text, paragraphs
     lg: 20, // Large: for subheadings, card titles
     xl: 24, // Extra Large: for main headings (h2)
-    xh:32
-  }
+    xh: 32,
+  },
 };
 
 const spacing = {
@@ -69,7 +69,8 @@ const lightTheme = {
     success: palette.green500,
     border: palette.gray200, // For subtle dividers
     link: palette.blue700,
-    shadow:palette.black
+    shadow: palette.black,
+    qr: palette.black,
   },
   typography,
   spacing,
@@ -95,7 +96,8 @@ const darkTheme = {
     success: palette.green500,
     border: palette.gray600, // Lighter border to be visible
     link: palette.blue500,
-    shadow:palette.white
+    shadow: palette.white,
+    qr: palette.white,
 
   },
   typography,

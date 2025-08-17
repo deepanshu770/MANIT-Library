@@ -7,7 +7,7 @@ import {
   Image,
 } from 'react-native';
 import React, { useState } from 'react';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { StyleSheet, UnistylesRuntime, useUnistyles } from 'react-native-unistyles';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { storage, StorageKeys } from '../services/storage.service';
 import { userData } from '../assets/data/data';
@@ -17,27 +17,49 @@ const Login = () => {
   const { theme } = useUnistyles();
   const [scholarId, setScholarId] = useState('');
   const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+
 
   const handleLogin = async () => {
     // In a real app, you would add authentication logic here
     console.log('sign in with ', { scholarId, password });
+
     storage.set(
       StorageKeys.USER,
-      JSON.stringify(userData.userInfo.studentInfo),
+      JSON.stringify({
+        full_name:name,
+        program_name:"MCA",
+        institute_email_id:"example@gmail.com",
+        phone_number:"9242592425",
+        roll_no:scholarId,
+        hostel:"H9"
+      }),
     );
-    storage.set(StorageKeys.TOKEN,userData.token);
+    storage.set(StorageKeys.TOKEN, userData.token);
     console.log(storage.getString(StorageKeys.TOKEN));
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle={'dark-content'} />
+      <StatusBar barStyle={UnistylesRuntime.themeName==='dark'?'light-content':'dark-content'} />
 
       <View style={styles.card}>
         <Image style={styles.logo} resizeMode="contain" source={manitLogo} />
         <Text style={styles.title}>MANIT Library</Text>
         <Text style={styles.subtitle}>Welcome back, please sign in.</Text>
 
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Name</Text>
+          <TextInput
+          
+            style={styles.input}
+            placeholder="e.g., Firstname Surename"
+            placeholderTextColor={theme.colors.placeholder}
+            value={name}
+            onChangeText={setName}
+            autoCapitalize="none"
+          />
+        </View>
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Scholar ID</Text>
           <TextInput

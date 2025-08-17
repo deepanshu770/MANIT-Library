@@ -1,83 +1,113 @@
-import { Image, Pressable, Text, View } from 'react-native';
-import React, { useEffect } from 'react';
-import { StyleSheet } from 'react-native-unistyles';
+import {
+  Image,
+  Pressable,
+  ScrollView,
+  StatusBar,
+  Text,
+  View,
+} from 'react-native';
+import React, { useEffect, useMemo } from 'react';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { storage, StorageKeys } from '../services/storage.service';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useMMKVString } from 'react-native-mmkv';
 import QRCode from 'react-native-qrcode-skia';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-const studentData = {
-  studentuid: 7624,
-  full_name: 'Deepanshu Saini',
-  roll_no: '24204031211',
-  dob: '16/11/2002',
-  phone_number: '9466717460',
-  gender: 'M',
-  program_name: 'Master of Computer Applications',
-  hostel: 'H9-215',
+interface Student {
+  full_name: string;
+  program_name: string;
+  institute_email_id: string;
+  phone_number: string;
+  roll_no: string;
+  hostel: string;
+}
+
+const intialStudent: Student = {
+  full_name: '',
+  roll_no: '',
+  phone_number: '',
+  program_name: '',
+  hostel: '',
   institute_email_id: 'deepanshusaini502@gmail.com',
 };
 
-const DetailRow = ({ label, value }) => (
+const DetailRow = ({ label, value }: any) => (
   <View style={styles.detailRow}>
     <Text style={styles.detailLabel}>{label}</Text>
     <Text style={styles.detailValue}>{value}</Text>
   </View>
 );
 const Home = () => {
-  const [userJson] = useMMKVString(StorageKeys.USER, storage);
-  useEffect(() => {}, [userJson]);
+  
+  const [user, setUser] = React.useState<Student>(intialStudent);
+  const { theme } = useUnistyles();
+
+  const qrData = useMemo(() => {
+    const { full_name, program_name, roll_no } = user;
+    return JSON.stringify({ full_name, program_name, roll_no });
+  }, [user]);
+
+  useEffect(() => {
+    const userJson = storage.getString(StorageKeys.USER);
+    if (userJson) {
+      setUser(JSON.parse(userJson));
+    }
+  }, []);
   return (
     <SafeAreaView style={styles.container}>
-      {/* --- Header --- */}
-      <View style={styles.header}>
-        <Image
-          source={require('../assets/img/manit_logo.png')}
-          style={styles.profileImage}
-        />
-        <View style={styles.headerTextContainer}>
-          <Text style={styles.welcomeMessage}>Welcome back,</Text>
-          <Text style={styles.studentNameHeader}>{studentData.full_name}</Text>
+      <ScrollView style={styles.container}>
+        <StatusBar />
+        {/* --- Header --- */}
+
+        <View style={styles.header}>
+          <Image
+            source={require('../assets/img/manit_logo.png')}
+            style={styles.profileImage}
+          />
+          <View style={styles.headerTextContainer}>
+            <Text style={styles.welcomeMessage}>Welcome back,</Text>
+            <Text style={styles.studentNameHeader}>{user.full_name}</Text>
+          </View>
         </View>
-      </View>
 
-      {/* --- QR Code Card --- */}
-      <View style={styles.qrCard}>
-        {userJson?
-        <QRCode
+        {/* --- QR Code Card --- */}
+        <View style={styles.qrCard}>
+          {qrData ? (
+            <QRCode
+              color={theme.colors.qr}
+              style={styles.qrCodePlaceholder}
+              value={qrData}
+              size={300}
+              shapeOptions={{shape:'square',eyePatternShape:'rounded'}}
+            />
+          ) : (
+            <Text style={styles.qrCodeText}>Login Again</Text>
+          )}
 
-          style={styles.qrCodePlaceholder}
-          value={userJson}
-          size={200}
-        />:
-        <Text style={styles.qrCodeText}>Login Again</Text>
-        }
-
-        <View style={styles.cardInfo}>
-          <Text style={styles.studentNameCard}>{studentData.full_name}</Text>
-          <Text style={styles.studentIdCard}>ID: {studentData.roll_no}</Text>
+          <View style={styles.cardInfo}>
+            <Text style={styles.studentNameCard}>{user.full_name}</Text>
+            <Text style={styles.studentIdCard}>ID: {user.roll_no}</Text>
+          </View>
         </View>
-      </View>
 
-      {/* --- Student Details --- */}
-      <View style={styles.detailsContainer}>
-        <Text style={styles.detailsTitle}>Your Information</Text>
-        <DetailRow label="Program" value={studentData.program_name} />
-        <DetailRow label="Hostel" value={studentData.hostel} />
-        <DetailRow label="Email" value={studentData.institute_email_id} />
-        <DetailRow label="Phone" value={studentData.phone_number} />
-      </View>
+        {/* --- Student Details --- */}
+        <View style={styles.detailsContainer}>
+          <Text style={styles.detailsTitle}>Your Information</Text>
+          <DetailRow label="Program" value={user.program_name} />
+          <DetailRow label="Hostel" value={user.hostel} />
+          <DetailRow label="Email" value={user.institute_email_id} />
+          <DetailRow label="Phone" value={user.phone_number} />
+        </View>
 
-      {/* --- Sign Out Button --- */}
-      <Pressable
-        style={styles.signOutButton}
-        onPress={() => {
-          storage.clearAll();
-        }}
-       
-      >
-        <Text style={styles.signOutText}>Sign Out</Text>
-      </Pressable>
+        {/* --- Sign Out Button --- */}
+        <Pressable
+          style={styles.signOutButton}
+          onPress={() => {
+            storage.clearAll();
+          }}
+        >
+          <Text style={styles.signOutText}>Sign Out</Text>
+        </Pressable>
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -140,14 +170,13 @@ const styles = StyleSheet.create(theme => ({
     elevation: 8,
   },
   qrCodePlaceholder: {
-    width: 220,
-    height: 220,
-    backgroundColor: theme.colors.background,
+    backgroundColor: theme.colors.surface,
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
     borderColor: theme.colors.border,
+    // color:theme.colors.qr
   },
   qrCodeText: {
     color: theme.colors.subtleText,
