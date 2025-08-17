@@ -7,10 +7,10 @@ import {
   View,
 } from 'react-native';
 import React, { useEffect, useMemo } from 'react';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { StyleSheet, UnistylesRuntime } from 'react-native-unistyles';
 import { storage, StorageKeys } from '../services/storage.service';
 import QRCode from 'react-native-qrcode-skia';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import Container from '../components/Container';
 
 interface Student {
   full_name: string;
@@ -37,9 +37,7 @@ const DetailRow = ({ label, value }: any) => (
   </View>
 );
 const Home = () => {
-  
   const [user, setUser] = React.useState<Student>(intialStudent);
-  const { theme } = useUnistyles();
 
   const qrData = useMemo(() => {
     const { full_name, program_name, roll_no } = user;
@@ -53,7 +51,17 @@ const Home = () => {
     }
   }, []);
   return (
-    <SafeAreaView style={styles.container}>
+    <Container style={styles.container}>
+      <StatusBar
+        barStyle={
+          UnistylesRuntime.themeName === 'dark'
+            ? 'light-content'
+            : 'dark-content'
+        }
+        animated
+
+      />
+
       <ScrollView style={styles.container}>
         <StatusBar />
         {/* --- Header --- */}
@@ -73,20 +81,17 @@ const Home = () => {
         <View style={styles.qrCard}>
           {qrData ? (
             <QRCode
-              color={theme.colors.qr}
+              color={'black'}
               style={styles.qrCodePlaceholder}
               value={qrData}
               size={300}
-              shapeOptions={{shape:'square',eyePatternShape:'rounded'}}
+              shapeOptions={{ shape: 'square', eyePatternShape: 'rounded' }}
             />
           ) : (
             <Text style={styles.qrCodeText}>Login Again</Text>
           )}
 
-          <View style={styles.cardInfo}>
-            <Text style={styles.studentNameCard}>{user.full_name}</Text>
-            <Text style={styles.studentIdCard}>ID: {user.roll_no}</Text>
-          </View>
+          <Text style={styles.studentIdCard}>ID: {user.roll_no}</Text>
         </View>
 
         {/* --- Student Details --- */}
@@ -108,7 +113,7 @@ const Home = () => {
           <Text style={styles.signOutText}>Sign Out</Text>
         </Pressable>
       </ScrollView>
-    </SafeAreaView>
+    </Container>
   );
 };
 
@@ -157,11 +162,13 @@ const styles = StyleSheet.create(theme => ({
   },
   // QR Code Card
   qrCard: {
+    flex: 1,
     margin: theme.spacing.lg,
     marginTop: -theme.spacing.md, // Pull the card up to overlap the header slightly
-    backgroundColor: theme.colors.surface,
+    backgroundColor: 'white',
     borderRadius: 16,
     padding: theme.spacing.lg,
+    paddingTop: theme.typography.fontSizes.sm + theme.spacing.lg,
     alignItems: 'center',
     shadowColor: theme.colors.shadow,
     shadowOffset: { width: 0, height: 4 },
@@ -170,13 +177,7 @@ const styles = StyleSheet.create(theme => ({
     elevation: 8,
   },
   qrCodePlaceholder: {
-    backgroundColor: theme.colors.surface,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    // color:theme.colors.qr
+    backgroundColor: 'white',
   },
   qrCodeText: {
     color: theme.colors.subtleText,
@@ -189,12 +190,12 @@ const styles = StyleSheet.create(theme => ({
   studentNameCard: {
     fontSize: theme.typography.fontSizes.lg,
     fontWeight: 'bold',
-    color: theme.colors.text,
+    color: 'black',
   },
   studentIdCard: {
     fontSize: theme.typography.fontSizes.md,
     color: theme.colors.subtleText,
-    marginTop: theme.spacing.xs,
+    marginTop: theme.spacing.md,
   },
   // Student Details Section
   detailsContainer: {

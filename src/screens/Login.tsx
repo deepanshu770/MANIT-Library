@@ -7,10 +7,14 @@ import {
   Image,
 } from 'react-native';
 import React, { useState } from 'react';
-import { StyleSheet, UnistylesRuntime, useUnistyles } from 'react-native-unistyles';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  StyleSheet,
+  UnistylesRuntime,
+  useUnistyles,
+} from 'react-native-unistyles';
 import { storage, StorageKeys } from '../services/storage.service';
 import { userData } from '../assets/data/data';
+import Container from '../components/Container';
 const manitLogo = require('../assets/img/manit_logo.png');
 
 const Login = () => {
@@ -19,7 +23,6 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
 
-
   const handleLogin = async () => {
     // In a real app, you would add authentication logic here
     console.log('sign in with ', { scholarId, password });
@@ -27,12 +30,12 @@ const Login = () => {
     storage.set(
       StorageKeys.USER,
       JSON.stringify({
-        full_name:name,
-        program_name:"MCA",
-        institute_email_id:"example@gmail.com",
-        phone_number:"9242592425",
-        roll_no:scholarId,
-        hostel:"H9"
+        full_name: name,
+        program_name: 'MCA',
+        institute_email_id: 'example@gmail.com',
+        phone_number: '9242592425',
+        roll_no: scholarId,
+        hostel: 'H9',
       }),
     );
     storage.set(StorageKeys.TOKEN, userData.token);
@@ -40,60 +43,66 @@ const Login = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle={UnistylesRuntime.themeName==='dark'?'light-content':'dark-content'} />
+    <Container style={styles.container}>
+      <StatusBar
+        barStyle={
+          UnistylesRuntime.themeName === 'dark'
+            ? 'light-content'
+            : 'dark-content'
+        }
+      />
+    
+        <View style={styles.card}>
+          <Image style={styles.logo} resizeMode="contain" source={manitLogo} />
+          <Text style={styles.title}>MANIT Library</Text>
+          <Text style={styles.subtitle}>Welcome back, please sign in.</Text>
 
-      <View style={styles.card}>
-        <Image style={styles.logo} resizeMode="contain" source={manitLogo} />
-        <Text style={styles.title}>MANIT Library</Text>
-        <Text style={styles.subtitle}>Welcome back, please sign in.</Text>
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Name</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="e.g., Firstname Surename"
+              placeholderTextColor={theme.colors.placeholder}
+              value={name}
+              onChangeText={setName}
+              autoCapitalize="none"
+            />
+          </View>
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Scholar ID</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="e.g., 24203031269"
+              placeholderTextColor={theme.colors.placeholder}
+              value={scholarId}
+              onChangeText={setScholarId}
+              autoCapitalize="none"
+              keyboardType="decimal-pad"
+            />
+          </View>
 
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Name</Text>
-          <TextInput
-          
-            style={styles.input}
-            placeholder="e.g., Firstname Surename"
-            placeholderTextColor={theme.colors.placeholder}
-            value={name}
-            onChangeText={setName}
-            autoCapitalize="none"
-          />
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Password</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="••••••••"
+              placeholderTextColor={theme.colors.placeholder}
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={true}
+            />
+          </View>
+
+          <Pressable style={styles.button} onPress={handleLogin}>
+            <Text style={styles.buttonText}>Sign In</Text>
+          </Pressable>
+
+          <Pressable onPress={() => console.log('Forgot Password pressed')}>
+            <Text style={styles.forgotPassword}>Forgot Password?</Text>
+          </Pressable>
         </View>
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Scholar ID</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="e.g., 24203031269"
-            placeholderTextColor={theme.colors.placeholder}
-            value={scholarId}
-            onChangeText={setScholarId}
-            autoCapitalize="none"
-            keyboardType="decimal-pad"
-          />
-        </View>
 
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Password</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="••••••••"
-            placeholderTextColor={theme.colors.placeholder}
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry={true}
-          />
-        </View>
-
-        <Pressable style={styles.button} onPress={handleLogin}>
-          <Text style={styles.buttonText}>Sign In</Text>
-        </Pressable>
-
-        <Pressable onPress={() => console.log('Forgot Password pressed')}>
-          <Text style={styles.forgotPassword}>Forgot Password?</Text>
-        </Pressable>
-      </View>
-    </SafeAreaView>
+    </Container>
   );
 };
 
@@ -105,7 +114,7 @@ const styles = StyleSheet.create((theme, rt) => ({
     backgroundColor: theme.colors.background,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: theme.spacing.lg,
+    paddingTop: rt.insets.top,
     transform: [
       {
         translateY: rt.insets.ime * -1,
