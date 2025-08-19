@@ -5,6 +5,7 @@ import {
   TextInput,
   View,
   Image,
+  Keyboard,
 } from 'react-native';
 import React, { useState } from 'react';
 import {
@@ -12,34 +13,58 @@ import {
   UnistylesRuntime,
   useUnistyles,
 } from 'react-native-unistyles';
+import { showToast, dismissToast } from 'react-native-nitro-toast';
+
+
 import { storage, StorageKeys } from '../services/storage.service';
-import { userData } from '../assets/data/data';
 import Container from '../components/Container';
+import { loginStudent } from '../services/student.service';
 const manitLogo = require('../assets/img/manit_logo.png');
 
 const Login = () => {
   const { theme } = useUnistyles();
   const [scholarId, setScholarId] = useState('');
   const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
+  const [backendURL, setBackendURL] = useState('192.168.137.1:4000');
 
   const handleLogin = async () => {
-    // In a real app, you would add authentication logic here
-    console.log('sign in with ', { scholarId, password });
-
-    storage.set(
-      StorageKeys.USER,
-      JSON.stringify({
-        full_name: name,
-        program_name: 'MCA',
-        institute_email_id: 'example@gmail.com',
-        phone_number: '9242592425',
-        roll_no: scholarId,
-        hostel: 'H9',
-      }),
-    );
-    storage.set(StorageKeys.TOKEN, userData.token);
-    console.log(storage.getString(StorageKeys.TOKEN));
+    Keyboard.dismiss();
+    const loadingToast = showToast("Loading...",{
+      position:"top",
+      type:"loading"
+    })
+  
+    const url =  `http://${backendURL}`;
+    const login = await loginStudent(scholarId, password, url, 10000);
+    let toastMessage="";
+    console.log(login);
+    if (login.success) {
+      toastMessage="Login Success";
+      //@ts-ignore
+      const { student_id,student_name, course, department } = login?.data;
+      storage.set(StorageKeys.BACKEND_URL,url);
+      storage.set(
+        StorageKeys.USER,
+        JSON.stringify({
+          student_id,
+          student_name,
+          course,
+          department,
+          institute_email_id: 'example@gmail.com',
+          phone_number: '9242592425',
+          hostel: 'H9',
+        }),
+      );
+    }else{
+      toastMessage=login?.error || "Something went wrong"
+    }
+    dismissToast(loadingToast);
+    showToast(toastMessage,{
+      type:login.success ?"success":'error',
+      duration:3000,
+      position: "top",
+      presentation:"alert"
+    })
   };
 
   return (
@@ -51,57 +76,56 @@ const Login = () => {
             : 'dark-content'
         }
       />
-    
-        <View style={styles.card}>
-          <Image style={styles.logo} resizeMode="contain" source={manitLogo} />
-          <Text style={styles.title}>MANIT Library</Text>
-          <Text style={styles.subtitle}>Welcome back, please sign in.</Text>
 
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Name</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="e.g., Firstname Surename"
-              placeholderTextColor={theme.colors.placeholder}
-              value={name}
-              onChangeText={setName}
-              autoCapitalize="none"
-            />
-          </View>
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Scholar ID</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="e.g., 24203031269"
-              placeholderTextColor={theme.colors.placeholder}
-              value={scholarId}
-              onChangeText={setScholarId}
-              autoCapitalize="none"
-              keyboardType="decimal-pad"
-            />
-          </View>
+      <View style={styles.card}>
+        <Image style={styles.logo} resizeMode="contain" source={manitLogo} />
+        <Text style={styles.title}>MANIT Library</Text>
+        <Text style={styles.subtitle}>Welcome back, please sign in.</Text>
 
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Password</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="••••••••"
-              placeholderTextColor={theme.colors.placeholder}
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={true}
-            />
-          </View>
-
-          <Pressable style={styles.button} onPress={handleLogin}>
-            <Text style={styles.buttonText}>Sign In</Text>
-          </Pressable>
-
-          <Pressable onPress={() => console.log('Forgot Password pressed')}>
-            <Text style={styles.forgotPassword}>Forgot Password?</Text>
-          </Pressable>
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Backend URL</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="e.g., IP:PORT"
+            placeholderTextColor={theme.colors.placeholder}
+            value={backendURL}
+            onChangeText={setBackendURL}
+            autoCapitalize="none"
+          />
+        </View>
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Scholar ID</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="e.g., 24203031269"
+            placeholderTextColor={theme.colors.placeholder}
+            value={scholarId}
+            onChangeText={setScholarId}
+            autoCapitalize="none"
+            keyboardType="decimal-pad"
+          />
         </View>
 
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Password</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="••••••••"
+            placeholderTextColor={theme.colors.placeholder}
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry={true}
+          />
+        </View>
+
+        <Pressable style={styles.button} onPress={handleLogin}>
+          <Text style={styles.buttonText}>Sign In</Text>
+        </Pressable>
+
+        <Pressable onPress={() => console.log('Forgot Password pressed')}>
+          <Text style={styles.forgotPassword}>Forgot Password?</Text>
+        </Pressable>
+      </View>
     </Container>
   );
 };
@@ -114,10 +138,12 @@ const styles = StyleSheet.create((theme, rt) => ({
     backgroundColor: theme.colors.background,
     alignItems: 'center',
     justifyContent: 'center',
+    paddingHorizontal: 20,
     paddingTop: rt.insets.top,
+
     transform: [
       {
-        translateY: rt.insets.ime * -1,
+        translateY: (rt.insets.ime * -1) / 2.7,
       },
     ],
   },

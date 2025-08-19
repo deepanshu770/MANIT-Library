@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native-unistyles';
+import { StyleSheet,  } from 'react-native-unistyles';
 
 // It's a good practice to define your colors and fonts in a shared space
 // so you can maintain consistency across both light and dark themes.
@@ -114,6 +114,7 @@ type AppThemes = typeof appThemes;
 declare module 'react-native-unistyles' {
   export interface UnistylesThemes extends AppThemes {}
 }
+
 
 StyleSheet.configure({
   themes: appThemes,

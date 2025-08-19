@@ -5,9 +5,9 @@ import { storage, StorageKeys } from './services/storage.service';
 import Home from './screens/Home';
 
 const App = () => {
-  const [token] = useMMKVString(StorageKeys.TOKEN, storage);
+  const [user] = useMMKVString(StorageKeys.USER, storage);
 
-  return token ? <Home /> : <Login />;
+  return user ? <Home /> : <Login />;
 };
 
 export default App;

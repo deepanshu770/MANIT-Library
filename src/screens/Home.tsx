@@ -11,22 +11,25 @@ import { StyleSheet, UnistylesRuntime } from 'react-native-unistyles';
 import { storage, StorageKeys } from '../services/storage.service';
 import QRCode from 'react-native-qrcode-skia';
 import Container from '../components/Container';
+import ActiveStudentsCard from '../components/ActiveStudentCard';
 
 interface Student {
-  full_name: string;
-  program_name: string;
+  student_id:string,
+          student_name:string,
+          course:string,
+          department:string,
   institute_email_id: string;
   phone_number: string;
-  roll_no: string;
   hostel: string;
 }
 
 const intialStudent: Student = {
-  full_name: '',
-  roll_no: '',
+  student_id: '',
+  student_name: '',
   phone_number: '',
-  program_name: '',
+  course: '',
   hostel: '',
+  department:'',
   institute_email_id: 'deepanshusaini502@gmail.com',
 };
 
@@ -40,8 +43,8 @@ const Home = () => {
   const [user, setUser] = React.useState<Student>(intialStudent);
 
   const qrData = useMemo(() => {
-    const { full_name, program_name, roll_no } = user;
-    return JSON.stringify({ full_name, program_name, roll_no });
+    const { student_name, course, student_id } = user;
+    return JSON.stringify({student_name, course, student_id });
   }, [user]);
 
   useEffect(() => {
@@ -73,8 +76,9 @@ const Home = () => {
           />
           <View style={styles.headerTextContainer}>
             <Text style={styles.welcomeMessage}>Welcome back,</Text>
-            <Text style={styles.studentNameHeader}>{user.full_name}</Text>
+            <Text style={styles.studentNameHeader}>{user.student_name}</Text>
           </View>
+        
         </View>
 
         {/* --- QR Code Card --- */}
@@ -91,16 +95,17 @@ const Home = () => {
             <Text style={styles.qrCodeText}>Login Again</Text>
           )}
 
-          <Text style={styles.studentIdCard}>ID: {user.roll_no}</Text>
+          <Text style={styles.studentIdCard}>ID: {user.student_id}</Text>
         </View>
 
+<ActiveStudentsCard/>
         {/* --- Student Details --- */}
         <View style={styles.detailsContainer}>
           <Text style={styles.detailsTitle}>Your Information</Text>
-          <DetailRow label="Program" value={user.program_name} />
+          <DetailRow label="Program" value={user.course} />
+          <DetailRow label="Department" value={user.department} />
           <DetailRow label="Hostel" value={user.hostel} />
-          <DetailRow label="Email" value={user.institute_email_id} />
-          <DetailRow label="Phone" value={user.phone_number} />
+         
         </View>
 
         {/* --- Sign Out Button --- */}
